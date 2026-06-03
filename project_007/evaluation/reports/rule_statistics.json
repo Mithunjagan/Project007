@@ -1,0 +1,68 @@
+{
+    "DIRECTED_ARM_SWING": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 2,
+        "persistence_promoted_count": 2,
+        "cooldown_blocked_count": 0
+    },
+    "RAPID_APPROACH": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 10,
+        "persistence_promoted_count": 9,
+        "cooldown_blocked_count": 0
+    },
+    "FALL_EVENT": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 1,
+        "persistence_promoted_count": 1,
+        "cooldown_blocked_count": 0
+    },
+    "SUSTAINED_CONTACT": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 27,
+        "persistence_promoted_count": 15,
+        "cooldown_blocked_count": 2
+    },
+    "CROWD_DISPERSION": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 0,
+        "persistence_promoted_count": 0,
+        "cooldown_blocked_count": 0
+    },
+    "CAMERA_SHAKE": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 0,
+        "persistence_promoted_count": 0,
+        "cooldown_blocked_count": 0
+    },
+    "LENS_OCCLUSION": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 0,
+        "persistence_promoted_count": 0,
+        "cooldown_blocked_count": 0
+    },
+    "CAMERA_BLOCKAGE": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 0,
+        "persistence_promoted_count": 0,
+        "cooldown_blocked_count": 0
+    },
+    "CAMERA_RUSH": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 21,
+        "persistence_promoted_count": 19,
+        "cooldown_blocked_count": 2
+    },
+    "PROXIMITY_INTRUSION": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 0,
+        "persistence_promoted_count": 0,
+        "cooldown_blocked_count": 0
+    },
+    "ABNORMAL_SINGLE_SUBJECT_ENERGY": {
+        "evaluated_count": 2171,
+        "passed_threshold_count": 0,
+        "persistence_promoted_count": 0,
+        "cooldown_blocked_count": 0
+    }
+}

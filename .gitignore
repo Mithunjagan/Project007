@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.toast
+.untracked
+
+# Project-specific large files & outputs
+project_007/clips/
+project_007/logs/
+project_007/debug/
+project_007/dataset/interaction/fight_test.mp4
+project_007/yolov8n.pt
+project_007/pose_landmarker_lite.task
+evaluation/failures/
+evaluation/reports/last_replay_summary.json
+
+# IDE
+.vscode/
+.idea/
+.DS_Store

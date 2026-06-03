@@ -1,0 +1,14 @@
+{
+    "video": "dataset/interaction/fight_test.mp4",
+    "total_frames": 2171,
+    "max_risk_score": 1.0,
+    "highest_state": "CRITICAL",
+    "event_frames": 875,
+    "interaction_stats": {
+        "merges": 1269,
+        "expirations": 39,
+        "track_churn_events": 117,
+        "avg_lifetime_sec": 5.42,
+        "max_lifetime_sec": 23.82
+    }
+}

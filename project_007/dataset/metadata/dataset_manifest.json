@@ -1,0 +1,27 @@
+{
+    "dataset_version": "3.0.0",
+    "annotation_version": "1.0.0",
+    "creation_date": "2026-06-03T11:20:39",
+    "last_modified": "2026-06-03T11:20:39",
+    "total_videos": 1,
+    "total_duration_sec": 0,
+    "total_duration_hours": 0.0,
+    "total_annotations": 1,
+    "sample_counts": {
+        "normal": 0,
+        "camera_tamper": 0,
+        "intrusion": 0,
+        "interaction": 0,
+        "crowded": 0,
+        "occlusion": 0,
+        "lighting_change": 0
+    },
+    "videos": [
+        {
+            "filename": "fight_test.mp4",
+            "category": "interaction",
+            "duration_sec": 90.55,
+            "has_annotation": true
+        }
+    ]
+}

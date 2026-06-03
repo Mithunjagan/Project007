@@ -1,0 +1,65 @@
+{
+    "video": "dataset\\interaction\\fight_test.mp4",
+    "category": "normal",
+    "total_frames": 2171,
+    "sync_mode": true,
+    "metrics": {
+        "frames_analyzed": 2171,
+        "true_positives_frames": 0,
+        "false_positives_frames": 0,
+        "true_negatives_frames": 2171,
+        "false_negatives_frames": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "rule_contributions": {},
+        "rule_triggers": {},
+        "false_positive_rule_attribution": {}
+    },
+    "confusion_matrix": {
+        "NORMAL": {
+            "NORMAL": 2171,
+            "SUSPICIOUS": 0,
+            "HIGH_RISK": 0,
+            "CRITICAL": 0
+        },
+        "SUSPICIOUS": {
+            "NORMAL": 0,
+            "SUSPICIOUS": 0,
+            "HIGH_RISK": 0,
+            "CRITICAL": 0
+        },
+        "HIGH_RISK": {
+            "NORMAL": 0,
+            "SUSPICIOUS": 0,
+            "HIGH_RISK": 0,
+            "CRITICAL": 0
+        },
+        "CRITICAL": {
+            "NORMAL": 0,
+            "SUSPICIOUS": 0,
+            "HIGH_RISK": 0,
+            "CRITICAL": 0
+        }
+    },
+    "latency": {
+        "avg_frame_age_ms": 14.58,
+        "p95_frame_age_ms": 0.0,
+        "p99_frame_age_ms": 542.21,
+        "avg_yolo_ms": 30.61,
+        "avg_pose_ms": 22.53
+    },
+    "integrity": {
+        "event_count": 0,
+        "state_transitions": [],
+        "confusion_counts": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 2171,
+            "fn": 0
+        },
+        "checksum": "ed337015cc83ef4b5a205c67be7df41d8c43b6d2cb2b0c50bf6cc721d8ad4823"
+    }
+}

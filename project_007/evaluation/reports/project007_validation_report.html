@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROJECT 007 — Scientific Validation Report</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a0f; color: #e0e0e0; line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+h1 { color: #00d4ff; font-size: 32px; margin-bottom: 5px; }
+h2 { color: #ff6b35; font-size: 24px; margin: 40px 0 15px; border-bottom: 2px solid #21262d; padding-bottom: 8px; }
+h3 { color: #58a6ff; font-size: 18px; margin: 20px 0 10px; }
+.header { background: linear-gradient(135deg, #0d1117, #1a1e29); padding: 40px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #21262d; }
+.subtitle { color: #8b949e; font-size: 16px; margin-top: 5px; }
+.timestamp { color: #484f58; font-size: 12px; margin-top: 10px; }
+.answer-box { background: #161b22; border-left: 4px solid #58a6ff; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+.answer-box.good { border-left-color: #3fb950; }
+.answer-box.warn { border-left-color: #d29922; }
+.answer-box.bad { border-left-color: #f85149; }
+.answer-box .question { color: #c9d1d9; font-weight: bold; font-size: 15px; margin-bottom: 8px; }
+.answer-box .answer { color: #e0e0e0; font-size: 14px; }
+.answer-box .value { font-size: 24px; font-weight: bold; margin: 5px 0; }
+.answer-box .value.green { color: #3fb950; }
+.answer-box .value.yellow { color: #d29922; }
+.answer-box .value.red { color: #f85149; }
+.section { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 25px; margin: 15px 0; }
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { background: #161b22; color: #58a6ff; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
+td { padding: 10px 12px; border-bottom: 1px solid #21262d; font-size: 13px; }
+tr:hover { background: #161b22; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.tag { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.tag-pass { background: #1b4332; color: #3fb950; }
+.tag-fail { background: #4a1919; color: #f85149; }
+.tag-warn { background: #3d2e00; color: #d29922; }
+.bar { height: 8px; border-radius: 4px; background: #21262d; overflow: hidden; display: inline-block; width: 100px; vertical-align: middle; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.verdict { font-size: 20px; font-weight: bold; padding: 15px 25px; border-radius: 8px; text-align: center; margin: 20px 0; }
+.verdict-pass { background: #1b4332; color: #3fb950; border: 1px solid #3fb950; }
+.verdict-warn { background: #3d2e00; color: #d29922; border: 1px solid #d29922; }
+.verdict-fail { background: #4a1919; color: #f85149; border: 1px solid #f85149; }
+.footer { text-align: center; color: #484f58; padding: 40px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+    <h1>PROJECT 007 — Scientific Validation Report</h1>
+    <div class="subtitle">P4.5 Framework — Comprehensive System Evaluation</div>
+    <div class="timestamp">Generated: 2026-05-31 12:52:42</div>
+</div>
+
+<h2>1. Key Questions Answered</h2>
+<div class="answer-box warn"><div class="question">What is the false positive rate?</div><div class="answer">No error analysis data available. Run: <code>python -m evaluation.error_analysis</code></div></div><div class="answer-box warn"><div class="question">What is the false negative rate?</div><div class="answer">No data available.</div></div><div class="answer-box warn"><div class="question">Which rules cause most errors?</div><div class="answer">No data available.</div></div><div class="answer-box warn"><div class="question">Which features matter most?</div><div class="answer">No feature analysis data. Run: <code>python -m evaluation.feature_analysis</code></div></div><div class="answer-box warn"><div class="question">Is hybrid actually better than rules-only?</div><div class="answer">No comparison data. Run: <code>python -m evaluation.p4_comparison</code></div></div><h2>7. Overall Verdict</h2><div class="verdict verdict-warn">INSUFFICIENT DATA — Run all analysis modules first</div>
+<h2>8. How to Generate Full Report</h2>
+<div class="section">
+<pre style="color:#58a6ff;background:#161b22;padding:15px;border-radius:8px;font-size:13px;overflow-x:auto;">
+# Step 1: Build training dataset
+python -m training.dataset_builder
+
+# Step 2: Train ML models
+python -m models.evaluator
+
+# Step 3: Run all analyses
+python -m evaluation.error_analysis
+python -m evaluation.class_metrics
+python -m evaluation.feature_analysis --dataset dataset/training_dataset.parquet
+python -m evaluation.threshold_sensitivity
+python -m evaluation.robustness_eval
+python -m evaluation.leakage_check --dataset dataset/training_dataset.parquet
+python -m evaluation.p4_comparison
+
+# Step 4: Generate reports
+python -m evaluation.event_dashboard
+python -m evaluation.validation_report
+</pre>
+</div>
+<div class="footer">
+    PROJECT 007 — P4.5 Scientific Validation Report — 2026-05-31 12:52:42
+</div>
+</div>
+</body>
+</html>

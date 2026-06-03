@@ -1,0 +1,7 @@
+{
+    "max_arm_velocity": 15.235695720125936,
+    "max_approach_velocity": 15.710351164278366,
+    "max_fall_score": 0.8325870729592958,
+    "max_proximity_ratio": 0.70384765625,
+    "max_optical_flow": 4.9351325035095215
+}

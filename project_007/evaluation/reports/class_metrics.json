@@ -1,0 +1,94 @@
+{
+    "timestamp": "2026-06-03T11:35:29",
+    "classes": [
+        "normal",
+        "camera_tamper",
+        "intrusion",
+        "camera_rush",
+        "high_energy_interaction"
+    ],
+    "per_class": {
+        "normal": {
+            "precision": 0.9078,
+            "recall": 1.0,
+            "f1": 0.9517,
+            "support": 955,
+            "tp": 955,
+            "fp": 97,
+            "fn": 0
+        },
+        "camera_tamper": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+        },
+        "intrusion": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0
+        },
+        "camera_rush": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0,
+            "tp": 0,
+            "fp": 1056,
+            "fn": 0
+        },
+        "high_energy_interaction": {
+            "precision": 1.0,
+            "recall": 0.0518,
+            "f1": 0.0985,
+            "support": 1216,
+            "tp": 63,
+            "fp": 0,
+            "fn": 1153
+        }
+    },
+    "confusion_matrix": {
+        "normal": {
+            "normal": 955,
+            "camera_tamper": 0,
+            "intrusion": 0,
+            "camera_rush": 0,
+            "high_energy_interaction": 0
+        },
+        "camera_tamper": {
+            "normal": 0,
+            "camera_tamper": 0,
+            "intrusion": 0,
+            "camera_rush": 0,
+            "high_energy_interaction": 0
+        },
+        "intrusion": {
+            "normal": 0,
+            "camera_tamper": 0,
+            "intrusion": 0,
+            "camera_rush": 0,
+            "high_energy_interaction": 0
+        },
+        "camera_rush": {
+            "normal": 0,
+            "camera_tamper": 0,
+            "intrusion": 0,
+            "camera_rush": 0,
+            "high_energy_interaction": 0
+        },
+        "high_energy_interaction": {
+            "normal": 97,
+            "camera_tamper": 0,
+            "intrusion": 0,
+            "camera_rush": 1056,
+            "high_energy_interaction": 63
+        }
+    }
+}

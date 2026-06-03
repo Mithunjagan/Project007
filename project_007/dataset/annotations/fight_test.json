@@ -1,0 +1,23 @@
+{
+    "video_id": "fight_test",
+    "total_frames": 2171,
+    "fps": 23.976023976024,
+    "annotator": "agent",
+    "annotation_version": "1.0",
+    "events": [
+        {
+            "start_time": 37.871,
+            "end_time": 82.708,
+            "start_frame": 908,
+            "end_frame": 1983,
+            "label": "high_energy_interaction"
+        },
+        {
+            "start_time": 84.751,
+            "end_time": 90.549,
+            "start_frame": 2032,
+            "end_frame": 2171,
+            "label": "high_energy_interaction"
+        }
+    ]
+}

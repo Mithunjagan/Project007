@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROJECT 007 — Event Review Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a0f; color: #e0e0e0; }
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+h1 { color: #00d4ff; font-size: 28px; margin-bottom: 10px; }
+h2 { color: #ff6b35; font-size: 22px; margin: 30px 0 15px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+h3 { color: #aaa; font-size: 16px; margin-bottom: 8px; }
+.header { background: linear-gradient(135deg, #0d1117, #161b22); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #21262d; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+.summary-card { background: #161b22; border-radius: 8px; padding: 20px; text-align: center; border: 1px solid #21262d; }
+.summary-card .value { font-size: 36px; font-weight: bold; color: #58a6ff; }
+.summary-card .label { font-size: 13px; color: #8b949e; margin-top: 5px; }
+.card-tp .value { color: #3fb950; }
+.card-fp .value { color: #f85149; }
+.card-fn .value { color: #d29922; }
+.card-tn .value { color: #58a6ff; }
+table { width: 100%; border-collapse: collapse; margin: 15px 0; background: #0d1117; border-radius: 8px; overflow: hidden; }
+th { background: #161b22; color: #58a6ff; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 10px 12px; border-bottom: 1px solid #21262d; font-size: 13px; }
+tr:hover { background: #161b22; }
+.tag { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.tag-tp { background: #1b4332; color: #3fb950; }
+.tag-fp { background: #4a1919; color: #f85149; }
+.tag-fn { background: #3d2e00; color: #d29922; }
+.tag-tn { background: #0c2d48; color: #58a6ff; }
+.tag-rule { background: #1c1c3a; color: #bc8cff; margin: 1px; }
+.bar { height: 8px; border-radius: 4px; background: #21262d; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.section { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 20px; margin: 20px 0; }
+.feature-list { list-style: none; }
+.feature-list li { padding: 4px 0; font-size: 13px; }
+.feature-list li span { color: #58a6ff; font-weight: bold; margin-left: 5px; }
+.metrics-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+.metric { background: #161b22; padding: 8px 16px; border-radius: 6px; font-size: 13px; }
+.metric b { color: #58a6ff; }
+.footer { text-align: center; color: #484f58; padding: 30px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+    <h1>PROJECT 007 — Event Review Dashboard</h1>
+    <h3>P4.5 Scientific Validation Framework</h3>
+</div>
+<h2>Summary</h2><div class="summary-grid"><div class="summary-card card-tp"><div class="value">0</div><div class="label">True Positives</div></div><div class="summary-card card-fp"><div class="value">0</div><div class="label">False Positives</div></div><div class="summary-card card-tn"><div class="value">0</div><div class="label">True Negatives</div></div><div class="summary-card card-fn"><div class="value">0</div><div class="label">False Negatives</div></div></div><div class="metrics-row"><div class="metric"><b>Precision:</b> 0.0000</div><div class="metric"><b>Recall:</b> 0.0000</div><div class="metric"><b>F1:</b> 0.0000</div><div class="metric"><b>FPR:</b> 0.0000</div><div class="metric"><b>FNR:</b> 0.0000</div></div>
+<div class="footer">
+    PROJECT 007 — P4.5 Event Review Dashboard — Generated 2026-05-31 12:50:55
+</div>
+</div>
+</body>
+</html>

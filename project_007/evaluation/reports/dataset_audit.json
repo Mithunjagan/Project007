@@ -1,0 +1,57 @@
+{
+    "total_videos": 0,
+    "total_duration_sec": 0,
+    "total_duration_hours": 0.0,
+    "average_clip_duration_sec": 0,
+    "category_distribution": {},
+    "class_imbalance": {
+        "normal": {
+            "count": 0,
+            "ratio_to_max": 0.0,
+            "duration_sec": 0
+        },
+        "camera_tamper": {
+            "count": 0,
+            "ratio_to_max": 0.0,
+            "duration_sec": 0
+        },
+        "intrusion": {
+            "count": 0,
+            "ratio_to_max": 0.0,
+            "duration_sec": 0
+        },
+        "interaction": {
+            "count": 0,
+            "ratio_to_max": 0.0,
+            "duration_sec": 0
+        },
+        "crowded": {
+            "count": 0,
+            "ratio_to_max": 0.0,
+            "duration_sec": 0
+        },
+        "occlusion": {
+            "count": 0,
+            "ratio_to_max": 0.0,
+            "duration_sec": 0
+        },
+        "lighting_change": {
+            "count": 0,
+            "ratio_to_max": 0.0,
+            "duration_sec": 0
+        }
+    },
+    "annotation_coverage": {
+        "annotated": 0,
+        "unannotated": 0,
+        "coverage_pct": 0,
+        "unannotated_files": []
+    },
+    "event_statistics": {
+        "total_events": 2,
+        "label_distribution": {
+            "camera_rush": 1,
+            "high_energy_interaction": 1
+        }
+    }
+}
