@@ -1,0 +1,46 @@
+{
+    "test": "P6.0-A Egomotion Regression",
+    "video": "fight_test.mp4",
+    "precision": 0.96,
+    "recall": 0.9465,
+    "f1": 0.9532022029897719,
+    "metrics": {
+        "frames_analyzed": 2171,
+        "true_positives_frames": 1151,
+        "false_positives_frames": 48,
+        "true_negatives_frames": 907,
+        "false_negatives_frames": 65,
+        "precision": 0.96,
+        "recall": 0.9465,
+        "f1_score": 0.9532,
+        "false_positive_rate": 0.0503,
+        "false_negative_rate": 0.0535,
+        "rule_contributions": {
+            "ABNORMAL_SINGLE_SUBJECT_ENERGY": 0.154,
+            "CAMERA_RUSH": 0.154,
+            "SUSTAINED_CONTACT": 0.147,
+            "DIRECTED_ARM_SWING": 0.147,
+            "RAPID_APPROACH": 0.142,
+            "FALL_EVENT": 0.132,
+            "CROWD_DISPERSION": 0.123
+        },
+        "rule_triggers": {
+            "ABNORMAL_SINGLE_SUBJECT_ENERGY": 1199,
+            "CAMERA_RUSH": 1199,
+            "SUSTAINED_CONTACT": 1148,
+            "DIRECTED_ARM_SWING": 1148,
+            "RAPID_APPROACH": 1108,
+            "FALL_EVENT": 1030,
+            "CROWD_DISPERSION": 962
+        },
+        "false_positive_rule_attribution": {
+            "SUSTAINED_CONTACT": 48,
+            "FALL_EVENT": 48,
+            "ABNORMAL_SINGLE_SUBJECT_ENERGY": 48,
+            "CAMERA_RUSH": 48,
+            "CROWD_DISPERSION": 48,
+            "RAPID_APPROACH": 48,
+            "DIRECTED_ARM_SWING": 48
+        }
+    }
+}

@@ -13,11 +13,14 @@ Here is how a raw pixel frame from your webcam goes from harmless video to high-
 graph TD
     A["🎥 Raw Frame (Webcam/MP4)"] --> B["🕵️ YOLOv8 + ByteTrack (Detects & Tracks People)"]
     A --> C["🧠 MobileNetV3 Feature Encoder (Every 2nd Frame)"]
-    B -->|"Person Crops"| D["🦴 MediaPipe Pose Extractor (Joint Estimation)"]
-    B -->|"Track BBoxes"| E["📐 Scene Dynamics & Intrusion Engine"]
+    A --> M["🛩️ Egomotion Estimator (Lucas-Kanade + RANSAC Affine)"]
+    B --> N["🔁 Soft ReID Tracker (Identity Persistence)"]
+    N -->|"Persistent IDs"| D["🦴 MediaPipe Pose Extractor (Joint Estimation)"]
+    N -->|"Track BBoxes"| E["📐 Scene Dynamics & Intrusion Engine"]
     A -->|"🌀 Dense Optical Flow"| F["⚠️ Tamper Engine (Camera Shake/Occlusion)"]
     D -->|"Skeleton Sequences"| G["🏃 Motion Engine (Joint Velocities & Falls)"]
-    G -->|"Kinematic Signals"| H["⚖️ Proxy Rules Engine (Directed swings, falls, contact)"]
+    M -->|"Affine Transform"| G
+    G -->|"Compensated Kinematics"| H["⚖️ Proxy Rules Engine (Directed swings, falls, contact)"]
     F & E --> H
     C -->|"576-dim Visual Embeddings"| I["🔮 LSTM Violence Net (Predicts Threat State)"]
     H -->|"Rule Alerts"| J["🎛️ Contextual Threat Fusion Engine"]
@@ -55,6 +58,21 @@ We then concatenate the visual embedding with motion and scene metrics into a **
 To prevent chaotic false alarms, rule alerts and DL outputs enter a **Hysteresis State Machine**:
 - An alert is only elevated if threat scores exceed high thresholds for a minimum dwell time (e.g., > 2.0s).
 - Alerts decay slowly over time to ensure that brief occlusion doesn't clear a high-risk event immediately.
+
+### 7. The Memory Keeper: Soft ReID & Scene-Centric Fusion (P5.1)
+ByteTrack occasionally fragments identities during occlusion or rapid motion. Our **Soft ReID Tracker** solves this:
+- Maintains a ghost cache of recently lost tracks (up to 3 seconds).
+- Matches new detections using combined **HSV color histograms** + **geometric dynamics** (centroid distance, velocity cosine).
+- Similarity above `0.65` restores the original persistent ID, preventing evidence loss.
+- **Scene-Centric Fusion**: Risk accumulates at the **scene level**, not per-track-pair, so evidence survives ID swaps.
+
+### 8. The Stabilizer: Egomotion Compensation (P6.0-A)
+For drone deployment, camera motion (translation, rotation, vibration) would corrupt all motion features. Our **Egomotion Estimator** fixes this:
+- Tracks up to 150 background feature points using **Lucas-Kanade** sparse optical flow.
+- Masks out all person bounding boxes to prevent foreground contamination.
+- Computes a **RANSAC-based 2D affine transform** (translation + rotation) mapping previous frame to current.
+- The affine matrix is fed into the **Motion Engine**, which projects previous keypoint/centroid positions before computing velocity deltas.
+- Result: arm velocity, body displacement, and approach velocity now measure **real human movement**, not camera shake.
 
 ---
 
@@ -144,6 +162,14 @@ Run a 3-way benchmark evaluation comparing (A) Rules-only, (B) ML-only, and (C) 
 $env:PYTHONPATH="."
 python -m evaluation.p4_comparison
 ```
+
+### 6. Run Drone Egomotion Compensation Audit
+Validate that the egomotion compensation layer successfully filters out camera motion from velocity features:
+```powershell
+$env:PYTHONPATH="."
+python -m evaluation.drone_motion_audit
+```
+*This compares raw vs. compensated arm/body/approach velocities across 5 synthetic drone motion profiles (hovering, slow pan, fast yaw, wind jitter, overhead view).*
 
 ---
 

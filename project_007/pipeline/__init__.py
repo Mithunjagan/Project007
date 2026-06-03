@@ -14,11 +14,13 @@ from pipeline.opticalflow import OpticalFlowWorker
 from pipeline.scene import SceneDynamicsEngine
 from pipeline.tamper import CameraTamperEngine
 from pipeline.intrusion import IntrusionEngine
+from pipeline.egomotion import EgomotionEstimator
 
 __all__ = [
     "FrameMeta", "DetectionResult", "PoseResult", "MotionResult",
     "RuleEvent", "BehaviorScore", "EventCandidate",
     "PersonDetector", "PoseExtractor", "TrackBuffer", "MotionEngine",
     "ProxyRuleEngine", "PersistenceFilter", "BehaviorScoringEngine", "ClipRecorder",
-    "OpticalFlowWorker", "SceneDynamicsEngine", "CameraTamperEngine", "IntrusionEngine"
+    "OpticalFlowWorker", "SceneDynamicsEngine", "CameraTamperEngine", "IntrusionEngine",
+    "EgomotionEstimator"
 ]

@@ -38,14 +38,14 @@ def _map_state_to_class(state: str, contributing_rules: list) -> str:
         return "normal"
     # Check contributing rules
     rule_set = set(contributing_rules)
+    if rule_set & {"DIRECTED_ARM_SWING", "SUSTAINED_CONTACT", "RAPID_APPROACH"}:
+        return "high_energy_interaction"
     if rule_set & {"CAMERA_SHAKE", "LENS_OCCLUSION", "CAMERA_BLOCKAGE"}:
         return "camera_tamper"
     if rule_set & {"CAMERA_RUSH", "PROXIMITY_INTRUSION"}:
         if "CAMERA_RUSH" in rule_set:
             return "camera_rush"
         return "intrusion"
-    if rule_set & {"DIRECTED_ARM_SWING", "SUSTAINED_CONTACT", "RAPID_APPROACH"}:
-        return "high_energy_interaction"
     # Fallback based on state
     if state in ("SUSPICIOUS", "HIGH_RISK", "CRITICAL"):
         return "intrusion"  # generic anomaly

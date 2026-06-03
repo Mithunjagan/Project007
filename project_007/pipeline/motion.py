@@ -19,9 +19,16 @@ class MotionEngine:
     camera-distance invariance.
     """
 
-    def compute(self, track_id: int, buffer) -> dict:
+    def compute(self, track_id: int, buffer, egomotion_affine=None, pose_composed_affine=None) -> dict:
         """
         Compute per-person motion features for *track_id*.
+
+        Parameters
+        ----------
+        egomotion_affine : np.ndarray | None
+            2×3 affine matrix mapping previous-frame coords to current-frame coords (1-frame).
+        pose_composed_affine : np.ndarray | None
+            2×3 affine matrix composed over the pose interval.
         """
         history = buffer.get_history(track_id)
 
@@ -45,8 +52,20 @@ class MotionEngine:
         bbox = current["bbox"]
         bbox_h = max(1.0, bbox[3] - bbox[1])
 
-        arm_vel, arm_vec = self._arm_motion(current["keypoints"], previous["keypoints"], dt, bbox_h)
-        body_disp = self._body_displacement(current["center"], previous["center"], dt, bbox_h)
+        # Check if pose was updated on this frame
+        curr_pose_fid = current.get("pose_frame_id")
+        prev_pose_fid = previous.get("pose_frame_id")
+
+        if curr_pose_fid is not None and prev_pose_fid is not None and curr_pose_fid == prev_pose_fid:
+            # No new pose on this frame, velocity is 0
+            arm_vel = 0.0
+            arm_vec = (0.0, 0.0)
+        else:
+            # Pose updated. Compute arm velocity.
+            # Compensate keypoints using pose_composed_affine (which covers the pose interval)
+            arm_vel, arm_vec = self._arm_motion(current["keypoints"], previous["keypoints"], dt, bbox_h, pose_composed_affine)
+
+        body_disp = self._body_displacement(current["center"], previous["center"], dt, bbox_h, egomotion_affine)
         
         curr_fall_score = self._fall_score(current["keypoints"])
         prev_fall_score = self._fall_score(previous["keypoints"])
@@ -63,9 +82,14 @@ class MotionEngine:
             "uncertainty": uncertainty,
         }
 
-    def compute_pairwise(self, buffer) -> dict:
+    def compute_pairwise(self, buffer, egomotion_affine=None) -> dict:
         """
         Compute normalized distance and approach velocity for all pairs.
+
+        Parameters
+        ----------
+        egomotion_affine : np.ndarray | None
+            2×3 affine matrix mapping previous-frame coords to current-frame coords.
 
         Returns
         -------
@@ -108,6 +132,11 @@ class MotionEngine:
                 ca_prev = np.array(prev_a["center"])
                 cb_prev = np.array(prev_b["center"])
 
+                # Compensate previous centroids with egomotion if available
+                if egomotion_affine is not None:
+                    ca_prev = self._apply_affine(egomotion_affine, ca_prev)
+                    cb_prev = self._apply_affine(egomotion_affine, cb_prev)
+
                 dist_now_px = float(np.linalg.norm(ca_now - cb_now))
                 dist_prev_px = float(np.linalg.norm(ca_prev - cb_prev))
 
@@ -134,9 +163,19 @@ class MotionEngine:
     # ── internal helpers ──────────────────────────────
 
     @staticmethod
-    def _arm_motion(current_kps: dict, previous_kps: dict, dt: float, bbox_h: float) -> tuple[float, tuple[float, float]]:
+    def _apply_affine(affine_mat, point) -> np.ndarray:
+        """Apply 2×3 affine transform to a 2D point."""
+        px, py = float(point[0]), float(point[1])
+        ex = affine_mat[0, 0] * px + affine_mat[0, 1] * py + affine_mat[0, 2]
+        ey = affine_mat[1, 0] * px + affine_mat[1, 1] * py + affine_mat[1, 2]
+        return np.array([ex, ey])
+
+    @staticmethod
+    def _arm_motion(current_kps: dict, previous_kps: dict, dt: float, bbox_h: float, egomotion_affine=None) -> tuple[float, tuple[float, float]]:
         """
         Calculates normalized arm velocity and the average 2D motion vector.
+        If egomotion_affine is provided, previous keypoint positions are
+        projected through the affine transform before computing deltas.
         """
         arm_keys = ["left_elbow", "right_elbow", "left_wrist", "right_wrist"]
         dx_list = []
@@ -147,8 +186,15 @@ class MotionEngine:
             prev = previous_kps.get(key)
 
             if curr and prev and curr.get("visibility", 0) > 0.3 and prev.get("visibility", 0) > 0.3:
-                dx_list.append(curr["x"] - prev["x"])
-                dy_list.append(curr["y"] - prev["y"])
+                px, py = prev["x"], prev["y"]
+                if egomotion_affine is not None:
+                    # Project previous position to current frame's coordinate system
+                    ex = egomotion_affine[0, 0] * px + egomotion_affine[0, 1] * py + egomotion_affine[0, 2]
+                    ey = egomotion_affine[1, 0] * px + egomotion_affine[1, 1] * py + egomotion_affine[1, 2]
+                else:
+                    ex, ey = px, py
+                dx_list.append(curr["x"] - ex)
+                dy_list.append(curr["y"] - ey)
 
         if not dx_list:
             return 0.0, (0.0, 0.0)
@@ -162,13 +208,20 @@ class MotionEngine:
         return normalized_speed, (mean_dx, mean_dy)
 
     @staticmethod
-    def _body_displacement(current_center: tuple, previous_center: tuple, dt: float, bbox_h: float) -> float:
+    def _body_displacement(current_center: tuple, previous_center: tuple, dt: float, bbox_h: float, egomotion_affine=None) -> float:
         """Normalized body displacement speed (heights / sec)."""
         if not current_center or not previous_center:
             return 0.0
 
-        dx = current_center[0] - previous_center[0]
-        dy = current_center[1] - previous_center[1]
+        px, py = previous_center[0], previous_center[1]
+        if egomotion_affine is not None:
+            ex = egomotion_affine[0, 0] * px + egomotion_affine[0, 1] * py + egomotion_affine[0, 2]
+            ey = egomotion_affine[1, 0] * px + egomotion_affine[1, 1] * py + egomotion_affine[1, 2]
+        else:
+            ex, ey = px, py
+
+        dx = current_center[0] - ex
+        dy = current_center[1] - ey
         speed_px_per_sec = np.sqrt(dx ** 2 + dy ** 2) / dt
         return float(speed_px_per_sec / bbox_h)
 

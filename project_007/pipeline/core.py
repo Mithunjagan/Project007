@@ -17,6 +17,7 @@ from collections import deque
 from pathlib import Path
 
 import cv2
+import numpy as np
 
 from config import (
     POSE_EVERY_N_FRAMES,
@@ -29,6 +30,7 @@ from config import (
     TARGET_FPS,
     DL_ENCODE_EVERY_N_FRAMES,
     DL_TEMPORAL_WINDOW,
+    ENABLE_EGOMOTION,
 )
 from pipeline.models import FrameMeta
 from pipeline.detector import PersonDetector
@@ -255,6 +257,25 @@ class PipelineRunner:
         # Sync-mode pose: accumulate results inline
         self._sync_pose_results: dict = {}
 
+        # P5.1: Soft ReID
+        from pipeline.reid import SoftReIDTracker
+        self.reid_tracker = SoftReIDTracker()
+
+        # P6.0-A: Egomotion Compensation
+        self._egomotion_affine = None  # Current frame's 2x3 affine matrix
+        self._latest_egomotion = {"translation_x": 0.0, "translation_y": 0.0, "rotation": 0.0, "stability_score": 1.0}
+        self._ego_history = deque(maxlen=30)
+        self._last_pose_frame_id = {}
+        self._latest_motion = {}
+        self._latest_pairwise_motion = {}
+        if ENABLE_EGOMOTION:
+            from pipeline.egomotion import EgomotionEstimator
+            self.egomotion_estimator = EgomotionEstimator()
+            logger.info("Egomotion Estimator: ENABLED")
+        else:
+            self.egomotion_estimator = None
+            logger.info("Egomotion Estimator: DISABLED")
+
         # P5.0: Deep Learning Violence Detection
         self._frame_embeddings = deque(maxlen=DL_TEMPORAL_WINDOW)
         self._frame_motion_ctx = deque(maxlen=DL_TEMPORAL_WINDOW)
@@ -318,6 +339,37 @@ class PipelineRunner:
             )
             self._sync_pose_results[track_id] = result
 
+    def _get_composed_affine(self, t_prev: int, t_curr: int) -> np.ndarray | None:
+        """
+        Compose frame-to-frame affines from t_prev + 1 to t_curr.
+        """
+        if t_prev >= t_curr:
+
+            return None
+
+        # Find all affines in history between t_prev + 1 and t_curr
+        affines_to_compose = []
+        for fid, A in self._ego_history:
+            if t_prev < fid <= t_curr:
+                affines_to_compose.append(A)
+
+        if not affines_to_compose:
+            return None
+
+        # Compose using 3x3 homogeneous matrix multiplication
+        H = np.eye(3, dtype=np.float32)
+        has_compensation = False
+        for A in affines_to_compose:
+            if A is not None:
+                H_i = np.eye(3, dtype=np.float32)
+                H_i[:2, :] = A
+                H = H_i @ H
+                has_compensation = True
+
+        if has_compensation:
+            return H[:2, :]
+        return None
+
     # ─────────────────────────────────────────
     # Main step
     # ─────────────────────────────────────────
@@ -357,6 +409,10 @@ class PipelineRunner:
             self.metrics.increment("stale_detections_rejected", stale_det_count)
 
         if fresh_detections:
+            # Map raw IDs to persistent IDs using Soft ReID
+            p_ids = self.reid_tracker.update(fresh_detections, frame, now_wall)
+            for idx, det in enumerate(fresh_detections):
+                det.track_id = p_ids[idx]
             self.current_detections = fresh_detections
         person_count = len(self.current_detections)
 
@@ -373,25 +429,31 @@ class PipelineRunner:
         # Collect pose results
         if self.sync_mode:
             raw_pose = dict(self._sync_pose_results)
+            self._sync_pose_results.clear()
         else:
             raw_pose = self.pose_extractor.get_results()
 
         stale_pose_count = 0
+        new_poses_received = {}
         for tid, pr in raw_pose.items():
             if not self.sync_mode and pr.meta and _is_stale(pr.pose_end_ts, now_mono):
                 stale_pose_count += 1
             else:
                 self.latest_pose_results[tid] = pr
                 self.latest_keypoints[tid] = pr.keypoints
+                new_poses_received[tid] = pr
 
         if stale_pose_count > 0:
             self.metrics.increment("stale_poses_rejected", stale_pose_count)
 
-        # Store bbox in track buffer
+        # Store bbox in track buffer on every frame
         for det in self.current_detections:
             kps = self.latest_keypoints.get(det.track_id)
             if kps is not None:
-                self.track_buffer.update(det.track_id, kps, det.bbox, now_wall)
+                if det.track_id in new_poses_received:
+                    self._last_pose_frame_id[det.track_id] = frame_count
+                pose_fid = self._last_pose_frame_id.get(det.track_id, frame_count)
+                self.track_buffer.update(det.track_id, kps, det.bbox, now_wall, frame_id=frame_count, pose_frame_id=pose_fid)
 
         active_ids = {det.track_id for det in self.current_detections}
         for tid in [k for k in self.latest_keypoints if k not in active_ids]:
@@ -399,25 +461,80 @@ class PipelineRunner:
         for tid in [k for k in self.latest_pose_results if k not in active_ids]:
             del self.latest_pose_results[tid]
 
+        # Clean up cached features for inactive tracks
+        for tid in list(self._latest_motion.keys()):
+            if tid not in active_ids:
+                del self._latest_motion[tid]
+        for tid in list(self._last_pose_frame_id.keys()):
+            if tid not in active_ids:
+                del self._last_pose_frame_id[tid]
+        for pair in list(self._latest_pairwise_motion.keys()):
+            if pair[0] not in active_ids or pair[1] not in active_ids:
+                del self._latest_pairwise_motion[pair]
+
         self.track_buffer.cleanup(current_time=now_wall)
         self.smoother.cleanup(active_ids)
+
+        # P6.0-A: Compute egomotion affine matrix for camera motion compensation
+        ego_affine = None
+        if self.egomotion_estimator is not None:
+            person_bboxes = [det.bbox for det in self.current_detections]
+            ego_result = self.egomotion_estimator.update(frame, person_bboxes)
+            self._latest_egomotion = {
+                "translation_x": ego_result["translation_x"],
+                "translation_y": ego_result["translation_y"],
+                "rotation": ego_result["rotation"],
+                "stability_score": ego_result["stability_score"],
+                "is_compensating": ego_result["is_compensating"],
+            }
+            # Only apply compensation when motion exceeds noise floor
+            if ego_result["is_compensating"]:
+                self._egomotion_affine = ego_result["affine_matrix"]
+                ego_affine = ego_result["affine_matrix"]
+            else:
+                self._egomotion_affine = None
+        else:
+            self._egomotion_affine = None
+
+        # Record egomotion history for temporal composition
+        self._ego_history.append((frame_count, ego_affine))
 
         # Extract raw motion and apply smoothing
         all_motion = {}
         for det in self.current_detections:
-            raw_m = self.motion_engine.compute(det.track_id, self.track_buffer)
-
+            history = self.track_buffer.get_history(det.track_id)
+            pose_composed_affine = None
+            if len(history) >= 2:
+                # Composed affine covers pose interval
+                t_prev = history[-2].get("pose_frame_id")
+                t_curr = history[-1].get("pose_frame_id")
+                if t_prev is not None and t_curr is not None:
+                    pose_composed_affine = self._get_composed_affine(t_prev, t_curr)
+            
+            raw_m = self.motion_engine.compute(
+                det.track_id, self.track_buffer, 
+                egomotion_affine=self._egomotion_affine, 
+                pose_composed_affine=pose_composed_affine
+            )
+            
+            # Smooth the velocities and displacement on every frame
             smooth_vel = self.smoother.update(f"vel_{det.track_id}", raw_m["arm_velocity"])
             smooth_vec = self.smoother.update(f"vec_{det.track_id}", raw_m["arm_motion_vector"])
             smooth_disp = self.smoother.update(f"disp_{det.track_id}", raw_m["body_displacement"])
 
-            raw_m["arm_velocity"] = smooth_vel
-            raw_m["arm_motion_vector"] = smooth_vec
-            raw_m["body_displacement"] = smooth_disp
+            raw_m_copy = dict(raw_m)
+            raw_m_copy["arm_velocity"] = smooth_vel
+            raw_m_copy["arm_motion_vector"] = smooth_vec
+            raw_m_copy["body_displacement"] = smooth_disp
 
-            all_motion[det.track_id] = raw_m
+            all_motion[det.track_id] = raw_m_copy
+            self._latest_motion[det.track_id] = raw_m_copy
 
-        pairwise_motion = self.motion_engine.compute_pairwise(self.track_buffer)
+        # Pairwise motion evaluation
+        pairwise_motion = self.motion_engine.compute_pairwise(self.track_buffer, self._egomotion_affine)
+        for pair, vals in pairwise_motion.items():
+            self._latest_pairwise_motion[pair] = vals
+
         flow_metrics = self.opticalflow_worker.get_metrics()
 
         # Smooth flow metrics
@@ -580,6 +697,7 @@ class PipelineRunner:
         snap["scene_stability"] = scene_metrics.scene_stability_score
         snap["occupancy_ratio"] = scene_metrics.occupancy_ratio
         snap["global_flow_magnitude"] = flow_metrics.get("avg_flow_mag", 0.0)
+        snap["egomotion"] = self._latest_egomotion
         snap["event_candidate"] = is_event
         snap["clip_recording"] = is_recording
 

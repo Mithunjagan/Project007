@@ -105,65 +105,52 @@ class InteractionManager:
         return (sum(c[0] for c in centers) / len(centers), sum(c[1] for c in centers) / len(centers))
 
     def update(self, events: list[RuleEvent], track_buffer, timestamp: float) -> list[SceneInteraction]:
-        # Expire old interactions
-        active_interactions = []
-        for i in self._interactions:
-            if (timestamp - i.last_seen_ts) > self._temporal_threshold:
+        # Expire old global interaction if not updated recently
+        if self._interactions:
+            interaction = self._interactions[0]
+            if (timestamp - interaction.last_seen_ts) > self._temporal_threshold:
                 self.stats["interaction_expirations"] += 1
-                self.stats["interaction_lifetimes"].append(timestamp - i.first_seen_ts)
-            else:
-                active_interactions.append(i)
-        self._interactions = active_interactions
+                self.stats["interaction_lifetimes"].append(timestamp - interaction.first_seen_ts)
+                self._interactions = []
 
-        # Group events by track_ids
-        grouped_events = {}
-        for e in events:
-            grouped_events.setdefault(e.track_ids, []).append(e)
-
-        for track_ids, evs in grouped_events.items():
-            instant_score = sum(self._weights.get(e.rule_type, 0.0) * e.confidence for e in evs)
-            active_rules = list(set([e.rule_type for e in evs]))
+        if events:
+            # Gather all track IDs and rules active in this frame
+            all_tracks = set()
+            for e in events:
+                all_tracks.update(e.track_ids)
             
-            group_centroid = self._get_group_centroid(track_ids, track_buffer)
+            active_rules = list(set([e.rule_type for e in events]))
+            instant_score = sum(self._weights.get(e.rule_type, 0.0) * e.confidence for e in events)
+
+            group_centroid = self._get_group_centroid(all_tracks, track_buffer)
             if not group_centroid:
-                continue
+                group_centroid = (200.0, 150.0)  # Default center fallback
 
-            # Try to match to an existing interaction
-            best_match = None
-            best_dist = float('inf')
-            
-            # Match strictly by spatial proximity and temporal threshold (already filtered)
-            for interaction in self._interactions:
-                dist = np.linalg.norm(np.array(interaction.centroid) - np.array(group_centroid))
-                if dist < self._spatial_threshold and dist < best_dist:
-                    best_match = interaction
-                    best_dist = dist
-
-            if best_match:
-                # Interaction Merge / Continuation
+            if self._interactions:
+                interaction = self._interactions[0]
                 self.stats["interaction_merges"] += 1
                 
-                # Check for track ID churn
-                if not track_ids.issubset(best_match.contributing_tracks):
-                    self.stats["track_churn_events"] += 1
-                    
-                best_match.last_seen_ts = timestamp
-                
-                # EMA update for centroid (alpha = 0.5)
+                interaction.last_seen_ts = timestamp
                 alpha_c = 0.5
-                best_match.centroid = (
-                    alpha_c * group_centroid[0] + (1 - alpha_c) * best_match.centroid[0],
-                    alpha_c * group_centroid[1] + (1 - alpha_c) * best_match.centroid[1]
+                interaction.centroid = (
+                    alpha_c * group_centroid[0] + (1 - alpha_c) * interaction.centroid[0],
+                    alpha_c * group_centroid[1] + (1 - alpha_c) * interaction.centroid[1]
                 )
-                best_match.contributing_tracks.update(track_ids)
-                best_match.active_rules = list(set(best_match.active_rules + active_rules))
                 
-                new_score = (best_match.risk_score * RISK_DECAY) + instant_score
-                best_match.risk_score = min(MAX_RISK_SCORE, new_score)
+                # Check for track churn
+                new_tracks = all_tracks - interaction.contributing_tracks
+                if new_tracks:
+                    self.stats["track_churn_events"] += 1
+                
+                interaction.contributing_tracks.update(all_tracks)
+                interaction.active_rules = list(set(interaction.active_rules + active_rules))
+                
+                new_score = (interaction.risk_score * RISK_DECAY) + instant_score
+                interaction.risk_score = min(MAX_RISK_SCORE, new_score)
             else:
-                # Spawn new interaction
+                # Spawn new interaction representing the global scene state
                 new_interaction = SceneInteraction(
-                    interaction_id=str(uuid.uuid4())[:8],
+                    interaction_id="global_scene",
                     centroid=group_centroid,
                     radius=self._spatial_threshold,
                     first_seen_ts=timestamp,
@@ -171,18 +158,19 @@ class InteractionManager:
                     state_enter_ts=timestamp,
                     risk_score=min(MAX_RISK_SCORE, instant_score),
                     state="NORMAL",
-                    contributing_tracks=set(track_ids),
+                    contributing_tracks=all_tracks,
                     active_rules=active_rules
                 )
                 self._interactions.append(new_interaction)
-
-        # Decay inactive interactions
-        for interaction in self._interactions:
-            if interaction.last_seen_ts != timestamp:
+        else:
+            # If no rules triggered, decay the active interaction's risk score
+            if self._interactions:
+                interaction = self._interactions[0]
                 interaction.risk_score *= RISK_DECAY
 
-        # Evaluate State Machine
-        for interaction in self._interactions:
+        # Evaluate State Machine for the active interaction
+        if self._interactions:
+            interaction = self._interactions[0]
             current_state = interaction.state
             dwell_time = timestamp - interaction.state_enter_ts
             score = interaction.risk_score

@@ -193,3 +193,22 @@ DL_ENCODE_EVERY_N_FRAMES = 2          # Encode every Nth frame (match pose)
 DL_FUSION_WEIGHT = 0.50               # Weight for DL prediction in fusion
 RULE_FUSION_WEIGHT = 0.30             # Weight for rule-based in fusion
 ML_FUSION_WEIGHT_V2 = 0.20            # Weight for XGBoost/RF in fusion
+
+# ═══════════════════════════════════════
+# IDENTITY PERSISTENCE & PERSISTENT RE-ID (P5.1)
+# ═══════════════════════════════════════
+ENABLE_SOFT_REID = True
+REID_GHOST_TIMEOUT_S = 3.0            # Keep inactive tracks in memory for 3s
+REID_SIMILARITY_THRESHOLD = 0.65      # Similarity required to merge identity
+REID_COLOR_HIST_WEIGHT = 0.40         # Weight of color histogram similarity
+REID_GEOMETRY_WEIGHT = 0.60           # Weight of spatial proximity + scale similarity
+
+# ═══════════════════════════════════════
+# EGOMOTION COMPENSATION (P6.0-A)
+# ═══════════════════════════════════════
+ENABLE_EGOMOTION = True               # Enable ego-motion compensation layer
+EGOMOTION_MAX_FEATURES = 150          # Max background feature points to track
+EGOMOTION_MIN_FEATURES = 30           # Redetect when features drop below this
+EGOMOTION_RANSAC_THRESHOLD = 3.0      # RANSAC reprojection threshold (pixels)
+EGOMOTION_STABILITY_PENALTY_CAP = 0.3 # Max stability reduction from vibration
+

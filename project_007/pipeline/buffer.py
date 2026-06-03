@@ -32,7 +32,7 @@ class TrackBuffer:
 
     # ── public API ────────────────────────────────────
 
-    def update(self, track_id: int, keypoints: dict, bbox: tuple[int, int, int, int], timestamp: float | None = None) -> None:
+    def update(self, track_id: int, keypoints: dict, bbox: tuple[int, int, int, int], timestamp: float | None = None, frame_id: int | None = None, pose_frame_id: int | None = None) -> None:
         """Append a snapshot to the track's rolling history."""
         if timestamp is None:
             timestamp = time.time()
@@ -48,6 +48,8 @@ class TrackBuffer:
             "bbox": bbox,
             "timestamp": timestamp,
             "center": center,
+            "frame_id": frame_id,
+            "pose_frame_id": pose_frame_id,
         })
         self._last_seen[track_id] = timestamp
 

@@ -1,0 +1,90 @@
+{
+    "timestamp": "2026-06-03T19:36:59",
+    "results": {
+        "hovering": {
+            "arm_swing_velocity": {
+                "raw_mae": 0.1138,
+                "compensated_mae": 0.1101,
+                "reduction_pct": 3.31
+            },
+            "body_displacement_velocity": {
+                "raw_mae": 0.109,
+                "compensated_mae": 0.1128,
+                "reduction_pct": -3.46
+            },
+            "pairwise_approach_velocity": {
+                "raw_mae": 0.1525,
+                "compensated_mae": 0.1525,
+                "reduction_pct": -0.0
+            }
+        },
+        "slow_pan": {
+            "arm_swing_velocity": {
+                "raw_mae": 0.1492,
+                "compensated_mae": 0.1442,
+                "reduction_pct": 3.34
+            },
+            "body_displacement_velocity": {
+                "raw_mae": 0.473,
+                "compensated_mae": 0.4793,
+                "reduction_pct": -1.35
+            },
+            "pairwise_approach_velocity": {
+                "raw_mae": 0.2067,
+                "compensated_mae": 0.2067,
+                "reduction_pct": 0.0
+            }
+        },
+        "fast_yaw": {
+            "arm_swing_velocity": {
+                "raw_mae": 0.1744,
+                "compensated_mae": 0.1655,
+                "reduction_pct": 5.15
+            },
+            "body_displacement_velocity": {
+                "raw_mae": 0.1743,
+                "compensated_mae": 0.1774,
+                "reduction_pct": -1.78
+            },
+            "pairwise_approach_velocity": {
+                "raw_mae": 0.2183,
+                "compensated_mae": 0.2183,
+                "reduction_pct": -0.0
+            }
+        },
+        "windy_footage": {
+            "arm_swing_velocity": {
+                "raw_mae": 0.1878,
+                "compensated_mae": 0.1686,
+                "reduction_pct": 10.2
+            },
+            "body_displacement_velocity": {
+                "raw_mae": 0.1801,
+                "compensated_mae": 0.1773,
+                "reduction_pct": 1.54
+            },
+            "pairwise_approach_velocity": {
+                "raw_mae": 0.1629,
+                "compensated_mae": 0.1629,
+                "reduction_pct": -0.0
+            }
+        },
+        "people_walking_below": {
+            "arm_swing_velocity": {
+                "raw_mae": 0.1444,
+                "compensated_mae": 0.143,
+                "reduction_pct": 0.96
+            },
+            "body_displacement_velocity": {
+                "raw_mae": 0.1247,
+                "compensated_mae": 0.1287,
+                "reduction_pct": -3.2
+            },
+            "pairwise_approach_velocity": {
+                "raw_mae": 0.1489,
+                "compensated_mae": 0.1489,
+                "reduction_pct": -0.0
+            }
+        }
+    }
+}

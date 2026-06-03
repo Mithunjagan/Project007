@@ -1,17 +1,17 @@
 {
-    "timestamp": "2026-06-03T11:45:49",
+    "timestamp": "2026-06-03T12:30:17",
     "videos": 1,
     "rules_only": {
-        "precision": 0.9992,
+        "precision": 0.9983,
         "recall": 0.9753,
-        "f1": 0.9871,
-        "false_positives_per_hour": 39.76,
-        "detection_latency_ms": 90.54,
+        "f1": 0.9867,
+        "false_positives_per_hour": 79.51,
+        "detection_latency_ms": 83.76,
         "total_frames": 2171,
         "confusion": {
             "tp": 1186,
-            "fp": 1,
-            "tn": 954,
+            "fp": 2,
+            "tn": 953,
             "fn": 30
         }
     },
@@ -20,7 +20,7 @@
         "recall": 0.0,
         "f1": 0.0,
         "false_positives_per_hour": 0.0,
-        "detection_latency_ms": 90.04,
+        "detection_latency_ms": 85.38,
         "total_frames": 2171,
         "confusion": {
             "tp": 0,
@@ -30,16 +30,16 @@
         }
     },
     "hybrid": {
-        "precision": 0.9992,
+        "precision": 0.9983,
         "recall": 0.9753,
-        "f1": 0.9871,
-        "false_positives_per_hour": 39.76,
-        "detection_latency_ms": 88.08,
+        "f1": 0.9867,
+        "false_positives_per_hour": 79.51,
+        "detection_latency_ms": 84.39,
         "total_frames": 2171,
         "confusion": {
             "tp": 1186,
-            "fp": 1,
-            "tn": 954,
+            "fp": 2,
+            "tn": 953,
             "fn": 30
         }
     }
